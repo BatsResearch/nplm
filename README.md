@@ -12,6 +12,8 @@ labelers. Labelers are typically representated programmatically to output certai
 NPLM enables users to create partial labelers that output subsets of possible class labels would
 greatly expand the expressivity of programmatic weaksupervision.
 
+The experiments included in the paper can be found [Here](https://github.com/BatsResearch/yu-aistats22-code).
+
 ## Example Usage
 
 We will update further tutorials and documentations shortly for real-world applications
