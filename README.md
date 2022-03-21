@@ -3,6 +3,8 @@ Welcome to NPLM (Noisy Partial Label Model), a programmatic weak supervision sys
 
 Reference paper: [Learning from Multiple Noisy Partial Labelers](https://arxiv.org/pdf/2106.04530.pdf).
 
+The experiments included in the paper can be found [Here](https://github.com/BatsResearch/yu-aistats22-code).
+
 ![alt text](assets/example.png)
 
 ## Introduction
@@ -12,7 +14,6 @@ labelers. Labelers are typically representated programmatically to output certai
 NPLM enables users to create partial labelers that output subsets of possible class labels would
 greatly expand the expressivity of programmatic weaksupervision.
 
-The experiments included in the paper can be found [Here](https://github.com/BatsResearch/yu-aistats22-code).
 
 ## Example Usage
 
