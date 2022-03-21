@@ -18,7 +18,7 @@ We will update further tutorials and documentations shortly for real-world appli
 
 ## Checklist
 
-- [ ] Label Model + PLF Abstraction Interface
+- [x] Label Model + PLF Abstraction Interface
 - [ ] Documentation
 - [ ] Tutorials
 
