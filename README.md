@@ -5,8 +5,8 @@ Reference paper: [Learning from Multiple Noisy Partial Labelers](https://arxiv.o
 
 The experiments included in the paper can be found [Here](https://github.com/BatsResearch/yu-aistats22-code).
 
+![alt text](assets/poster.png)
 ![alt text](assets/example.png)
-
 ## Introduction
 Programmatic weak supervision (PWS) creates models without hand-labeled training
 data by combining the outputs of noisy, user-written rules and other heuristic
