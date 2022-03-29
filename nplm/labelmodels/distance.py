@@ -1,18 +1,20 @@
+import multiprocessing
+import threading
+import time
+
 import numpy as np
 from scipy.spatial.distance import hamming, euclidean, cosine
-import threading
-import multiprocessing
 from tqdm import tqdm
-import time
+
 from .labelmodel import LabelModel
-from .lm_utils import translate_fid2clusters_to_lid2fid
+from .lm_utils import translate_label_partitions_to_lid2fid
 
 
 class DistanceLM(LabelModel):
-    def __init__(self, num_classes, fid2clusters, offset=0, metric='hamming',
+    def __init__(self, num_classes, label_partitions, offset=0, metric='hamming',
                  verbose=False, cpu_parallelism=False):
-        super().__init__(num_classes, fid2clusters, verbose)
-        self.class_feature_map = translate_fid2clusters_to_lid2fid(fid2clusters, num_classes)
+        super().__init__(num_classes, label_partitions, verbose)
+        self.class_feature_map = translate_label_partitions_to_lid2fid(label_partitions, num_classes)
         self.offset = offset
         self.cpu_parallelism = cpu_parallelism and (multiprocessing.cpu_count() > 3)
 
@@ -22,7 +24,6 @@ class DistanceLM(LabelModel):
             self.metric = cosine
         else:
             self.metric = hamming
-
 
     def weak_label(self, instances):
         return self.get_label_distribution(instances)
@@ -53,7 +54,8 @@ class DistanceLM(LabelModel):
                             min_dist = incorrectness
                             curr_label = class_id
                     curr_batch_result[data_id] = curr_label
-                est_labels[start_idx:start_idx+batch_sz] = curr_batch_result
+                est_labels[start_idx:start_idx + batch_sz] = curr_batch_result
+
             running_threads = threading.enumerate()
             thread_num = multiprocessing.cpu_count()
             data_batches = np.array_split(instances, thread_num)
@@ -86,6 +88,3 @@ class DistanceLM(LabelModel):
             print('Total Time: ', time.time() - start)
 
         return label_dist
-
-
-

@@ -1,6 +1,6 @@
-from torchvision.models import resnet101, resnet50
 import torch.nn as nn
 import torch.nn.init as init
+from torchvision.models import resnet101, resnet50
 
 r50_in_dim = 2048
 r101_in_dim = 2048
@@ -39,7 +39,7 @@ class ResNetAttr(nn.Module):
                  intermediate_2=1024):
         super(ResNetAttr, self).__init__()
 
-        self.backbone_model = resnet50(pretrained=pretrained) if backbone=='r50' else resnet101(pretrained=pretrained)
+        self.backbone_model = resnet50(pretrained=pretrained) if backbone == 'r50' else resnet101(pretrained=pretrained)
 
         in_features = self.backbone_model.fc.in_features
 

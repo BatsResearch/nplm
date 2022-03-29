@@ -16,7 +16,7 @@ def executor(rules, data,
         raise NotImplementedError("Not Yet Implemented for CPU Parallelism")
     else:
         for rule_idx, rule in enumerate(rules):
-            votes[:,rule_idx] = rule.execute(data)
+            votes[:, rule_idx] = rule.execute(data)
 
     fid2clusters = {}
     for rule_idx, rule in enumerate(rules):
@@ -29,7 +29,7 @@ def executor(rules, data,
             if one_indexed:
                 curr_group[idx] = group
             else:
-                curr_group[idx] = [elem+1 for elem in group]
+                curr_group[idx] = [elem + 1 for elem in group]
         fid2clusters[rule_idx] = curr_group
 
     return votes, fid2clusters
@@ -41,7 +41,7 @@ def evaluator(rules, gold_labels,
               average='macro'):
     ps = []
     rs = []
-    accs =  []
+    accs = []
     cw_accs = []
 
     for rule_idx, rule in enumerate(rules):

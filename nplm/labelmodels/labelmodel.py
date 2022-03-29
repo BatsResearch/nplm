@@ -1,19 +1,19 @@
+import random
+import time
 import warnings
 from abc import ABC
-import random
+from copy import deepcopy as dc
 
 import numpy as np
 import torch
-from tqdm import tqdm
-import time
 from torch.nn import Module
-from copy import deepcopy as dc
+from tqdm import tqdm
 
-defualt_lm_opt_cfg = {'lr': 1,
-                      'epoch': 20,
+defualt_lm_opt_cfg = {'lr': 0.1,
+                      'epoch': 30,
                       'seed': 0,
-                      'batch_size': 1024,
-                      'momentum': 0.5,
+                      'batch_size': 512,
+                      'momentum': 0.2,
                       'step_schedule': 5,
                       'step_multiplier': 1e-2}
 
@@ -21,42 +21,43 @@ defualt_lm_opt_cfg = {'lr': 1,
 def intercect(l1, l2):
     return [value for value in l1 if value in l2]
 
+
 def union(l1, l2):
     return list(set(l1) | set(l2))
 
+
 class LabelModel(ABC):
-    def __init__(self, num_classes, fid2clusters, verbose=False):
+    def __init__(self, num_classes, label_partition, verbose=False):
         self.num_classes = num_classes
-        self.fid2clusters = fid2clusters
+        self.label_partition = label_partition
         self.verbose = verbose
-        self.num_df = len(fid2clusters)
-        #########################
-        # 0-indexed classes
-        # Sort clusters
-        #
-        for fid, clusters in self.fid2clusters.items():
+        self.num_plf = len(label_partition)
+
+        for fid, clusters in self.label_partition.items():
             crange = clusters[0]
             ccover = []
             for cluster_id, cluster in enumerate(clusters):
                 cluster.sort()
-                self.fid2clusters[fid][cluster_id] = cluster
+                self.label_partition[fid][cluster_id] = cluster
                 crange = intercect(crange, cluster)
                 ccover = union(ccover, cluster)
             if len(crange) > 0:
                 raise RuntimeError('Setup Violation: No class can appear in all groups!')
             if len(ccover) < self.num_classes:
-                raise RuntimeError('Setup Violation: Class must appear at least once! Please setup a dummy label group if necessary!')
+                raise RuntimeError(
+                    'Setup Violation: Class must appear at least once! Please setup a dummy label group if necessary!')
+
     def get_label_distribution(self, votes, batch_sz=1024):
         raise NotImplementedError('Module Not Implemented')
 
 
 class GenerativeLM(LabelModel, Module, ABC):
-    def __init__(self, num_classes, fid2clusters,
+    def __init__(self, num_classes, label_partition,
                  acc_prior=0.70,
                  opt_cfg=None, verbose=False,
                  opt_cb=True, device='cuda:0'):
         LabelModel.__init__(self, num_classes=num_classes,
-                            fid2clusters=fid2clusters,
+                            label_partition=label_partition,
                             verbose=verbose)
         Module.__init__(self)
         torch.set_default_dtype(torch.float64)
@@ -107,13 +108,12 @@ class GenerativeLM(LabelModel, Module, ABC):
 
     def optimize(self, votes, training_batch_size=None):
 
-
         self.init_random(self.opt_cfg['seed'])
         if training_batch_size is None:
             self.training_batch_size = self.opt_cfg['batch_size']
         if self.verbose:
             start = time.time()
-        batches = self._setup(votes, self.training_batch_size, shuffle=True)
+        batches = self._setup(votes-1, self.training_batch_size, shuffle=True)
         if self.verbose:
             print('Setup: ', time.time() - start)
 
@@ -147,7 +147,6 @@ class GenerativeLM(LabelModel, Module, ABC):
             scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer,
                                                                gamma=0.1,
                                                                last_epoch=-1)
-            scheduler = None
 
         self.train()
 
@@ -178,7 +177,7 @@ class GenerativeLM(LabelModel, Module, ABC):
                 print('1e-7 Criterion Reached: Epoch ', epoch)
                 break
             if scheduler is not None:
-                if step_schedule == 'p' :
+                if step_schedule == 'p':
                     scheduler.step(epoch_loss)
                 else:
                     scheduler.step()
@@ -195,7 +194,6 @@ class GenerativeLM(LabelModel, Module, ABC):
         if not self.optimized:
             warnings.warn("Warning: Label Model not trained!")
             return None
-
         self.eval()
         if self.verbose:
             start = time.time()
@@ -212,15 +210,16 @@ class GenerativeLM(LabelModel, Module, ABC):
             jll = class_balance + lf_likelihood
             P = torch.exp(jll - torch.max(jll, dim=1)[0].unsqueeze(1).repeat(1, self.num_classes))
             P /= torch.sum(P, dim=1).unsqueeze(1).repeat(1, self.num_classes)
-            labels[batch_id * annot_batch_sz:batch_id * annot_batch_sz + batch_votes.shape[0]] = P.detach().cpu().numpy()
+            labels[
+            batch_id * annot_batch_sz:batch_id * annot_batch_sz + batch_votes.shape[0]] = P.detach().cpu().numpy()
         if self.verbose:
             print('Parallel Estimation: ', time.time() - start)
         if 'cuda' in self.device:
             torch.cuda.empty_cache()
         return labels
 
-    def reload_fid2clusters(self, fid2clusters, oldnewfid_map):
-        #TODO: Update Internal Configurations
+    def reload_label_partition(self, label_partition, oldnewfid_map):
+        # TODO: Update Internal Configurations
         pass
 
     def get_accuracies(self):
@@ -239,4 +238,4 @@ class GenerativeLM(LabelModel, Module, ABC):
             torch.cuda.manual_seed_all(seed)
 
     def weak_label(self, votes, batch_sz=2048):
-        return self.get_label_distribution(votes, annot_batch_sz=batch_sz)
+        return self.get_label_distribution(votes-1, annot_batch_sz=batch_sz)

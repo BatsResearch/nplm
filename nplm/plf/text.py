@@ -1,9 +1,10 @@
 import re
+
 import numpy as np
 
 
 class WeakRule:
-    def __init__(self,  exec_module=None, label_maps=None,
+    def __init__(self, exec_module=None, label_maps=None,
                  name=None):
         # Label Map is
         # mapping from output of execution module to label groups
@@ -22,7 +23,7 @@ class WeakRule:
         self.label_maps = label_maps
 
     def set_name(self, name):
-        self.name=name
+        self.name = name
 
     def execute(self, data):
         if self.exec_module is None:
@@ -40,7 +41,7 @@ class WeakRule:
             raise ValueError("No Results Found!")
         if len(true_labels) != len(self.curr_results):
             raise ValueError("Incomparable Shape for GT")
-        concerned_index = np.where(self.curr_results>=0)[0]
+        concerned_index = np.where(self.curr_results >= 0)[0]
         translated_votes = [[] for _ in range(len(self.curr_results))]
         for inst_idx, label in enumerate(true_labels):
             for vote, group in self.label_maps.items():
@@ -52,7 +53,7 @@ class WeakRule:
         polars = np.unique(curr_votes)
         precision = []
         for g in polars:
-            idx = np.where(curr_votes==g)[0]
+            idx = np.where(curr_votes == g)[0]
             cw_acc = 0
             for item_idx, vote in enumerate(curr_votes[idx]):
                 if vote in truncated_translated_votes[idx[item_idx]]:
@@ -106,8 +107,9 @@ class SpacyDepMatcherRule(WeakRule):
             match = matcher(inst)
             res = False
             for r in match:
-                res = res and len(r[1])>0
+                res = res and len(r[1]) > 0
             return int(res)
+
         super().__init__(exec_module=matcher, label_maps=label_maps)
 
 
@@ -125,5 +127,5 @@ class BinaryRERules(WeakRule):
             else:
                 resmat = [0, 1]
             return resmat[res]
-        super().__init__(exec_module=repm, label_maps=label_maps, name=name)
 
+        super().__init__(exec_module=repm, label_maps=label_maps, name=name)

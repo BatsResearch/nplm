@@ -1,7 +1,7 @@
 import torch
 
-def translate_fid2clusters_to_lid2fid(fid2clusters, num_classes):
 
+def translate_label_partitions_to_lid2fid(fid2clusters, num_classes):
     lid2fid = {}
     feature_len = len(fid2clusters)
 
@@ -12,7 +12,7 @@ def translate_fid2clusters_to_lid2fid(fid2clusters, num_classes):
     for fid, clusters in fid2clusters.items():
         for cluster_id, cluster in enumerate(clusters):
             for lid in cluster:
-                lid2fid[lid-1][fid] = cluster_id
+                lid2fid[lid - 1][fid] = cluster_id
 
     return lid2fid
 
