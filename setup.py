@@ -8,5 +8,5 @@ setup(
     author_email='peilin_yu@brown.edu, sbach@cs.brown.edu',
     description='Programmatic weak supervision for partial labelers (PLFs)',
     packages=find_packages(),
-    install_requires=['numpy >= 1.11', 'scipy >= 1.1', 'torch >= 1.4'],
+    install_requires=['numpy >= 1.11', 'scipy >= 1.5', 'torch >= 1.4', 'tqdm >= 4.62.3', 'torchvision >= 0.10'],
 )
