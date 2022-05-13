@@ -28,6 +28,9 @@ class DistanceLM(LabelModel):
     def weak_label(self, instances):
         return self.get_label_distribution(instances)
 
+    def estimate_label_model(self, votes):
+        pass
+
     def optimize(self, training):
         pass
 

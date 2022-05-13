@@ -31,8 +31,8 @@ class LMTask:
 
     def annotate(self, lm_annot_votes, lm_train_votes=None):
         if lm_train_votes is not None:
-            self.labelmodel.optimize(lm_train_votes)
-        return self.labelmodel.weak_label(lm_annot_votes)
+            self.labelmodel.estimate_label_model(lm_train_votes)
+        return self.labelmodel.get_label_distribution(lm_annot_votes)
 
     def get_accuracy(self):
         return self.labelmodel.get_accuracies()

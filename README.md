@@ -22,7 +22,7 @@ greatly expand the expressivity of programmatic weaksupervision.
 ```
 git clone https://github.com/BatsResearch/nplm.git
 cd nplm; pip install -r requirements.txt
-pip install -e git+git://github.com/BatsResearch/labelmodels.git@main#egg=labelmodels
+pip install -e git+git://github.com/BatsResearch/labelmodels.git@master#egg=labelmodels
 pip install .
 ```
 or just run the fast install script:
