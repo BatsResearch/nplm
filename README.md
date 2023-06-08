@@ -80,11 +80,6 @@ print(model.get_accuracies())
 labels = model.weak_label(votes)
 ```
 
-## Checklist
-
-- [x] Label Model + PLF Abstraction Interface
-- [ ] Documentation
-- [ ] Tutorials
 
 <!-- ## Contact
 
